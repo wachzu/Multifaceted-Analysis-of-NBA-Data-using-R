@@ -1,0 +1,574 @@
+---
+title: "Info 201 FP Group 2"
+author: "Zachary Wu, Landon Chun, Johnny Nguyen"
+date: "2025-03-09"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+# 1 Abstract
+Our topic is questions about the NBA. We are all very interested in
+the NBA, and wanted to utilize R to answer some of our questions. We decided to
+look into three questions. The **first question** was "In the 2023-2024 season, who was the
+biggest playoff riser". The **second question** was "At what age does performane peak in the NBA?"
+and finally, the **third question** was "Does a lower defensive rating or higher offensive efficiency
+correlate to a higher win percentage for top teams in the NBA in the regular season?".
+
+We found that the highest playoff riser was surprisingly Khris Middleton We also found that
+the peak performance age is 27-34. Finally, we found no correlation between defensive rating or offensive
+efficiency and wins for top teams in the NBA regular season.
+
+# 2 Introduction
+As previously mentioned, our topic of analysis is the NBA. We wanted to take a deeper look
+into the statistics of one of the world's most popular leagues and perhaps gain a new
+perspective on different players or trends. 
+
+This topic is interesting because it provides a unique look into the fascinating world of
+professional basketball, a topic that millions of fans are interested in. The NBA pulls in
+fans from across the world, so we hope that our findings will pique their interest and 
+encourage them to learn more about the popular sport. Before we began our data analysis,
+we knew pretty much what a basic fan knows. We knew what different statistics meant and
+recognized many of the players. However, we did not know how these statistics correlate and
+had many questions to answer.
+
+In order to learn more about the NBA, we proposed three questions.
+
+1) Which player was the biggest playoff riser in 2023-2024? 
+ - We measure "playoff riser" as who had the largest increase in three distinct categories,
+   P+R+A (points plus rebounds plus assists), defensive rating and offensive rating.
+   (Zach Wu)
+ 
+2) At which age does performance peak in the NBA. 
+ - In order to determine the age at which
+   performance peaks, we looked at offensive rating, points per game and effective field goal percentage.
+   (Landon Chun)
+
+3) Is defense overrated? Does a lower defensive rating or higher offensive efficiency rating correlate to 
+a higher win percentage for top teams in the NBA in the regular season? 
+- Lower defensive rating implies less points allowed in 100 possessions.
+- Higher offensive efficiency means more points scored per possession.
+(Johnny Nguyen)
+
+Our intended audience is other NBA fans, likely people who are drawn to the mathematics
+and statistics side of the NBA. This work is important because these fans looking at our data can 
+draw new conclusions about different players, stats and more. Our data aims to increase these fan's 
+interest in the NBA as a whole, by providing interesting facts and analysis.
+
+# 3 Data source
+All of our datasets came from https://www.nbastuffer.com/. This website has a bunch of stats
+from 2016 to current day. To answer our questions, we used a variety of different datasets.
+
+To answer **question 1**, we used the 2023-2024 regular season and 2023-2024 playoff datasets (both found
+here: https://www.nbastuffer.com/2024-2025-nba-player-stats/). 
+
+To answer **question 2**, we used the 2022-2023 and 2023-2024 regular season stats
+(https://www.nbastuffer.com/2022-2023-nba-player-stats/ and https://www.nbastuffer.com/2023-2024-nba-player-stats/)
+
+To answer **question 3**, we used the team and player stats in 2022-2023 and 2023-2024. 
+(https://www.nbastuffer.com/2023-2024-nba-player-stats/, 
+https://www.nbastuffer.com/2022-2023-nba-player-stats/, 
+https://www.nbastuffer.com/2023-2024-nba-team-stats/ and 
+https://www.nbastuffer.com/2022-2023-nba-team-stats/)
+
+All of the data was collected by Serhat Ugur. The data is freely accessible to anybody
+and there are no usage or access restrictions.
+
+The datasets represent either player stats from a specified year or team stats from
+a specified year. For example, in question 1 we used a dataset that had all player data
+in 2024-2025.
+
+We chose these datasets because they have a ton of well-formatted information. Each
+player dataset has seemingly every player in the NBA and their stats for the overall
+year. It is a very well put-together dataset. They were crucial for solving our
+proposed questions as they provided us with a ton of data.
+
+
+# 4 Data
+For **question 1**, the regular season dataset has 657 rows and 29 columns. The playoff
+dataset has 214 rows and 29 columns. In these datasets, each row represents one
+player in the 2023-2024 season.
+
+For **question 2**, the 2022-2023 dataset has 609 rows and 29 columns. The 2023-2024 dataset
+has 657 rows and 29 columns. Once again, each row within these datasets represent
+one player, either in the 2022-2023 or 2023-2024 season.
+
+For **question 3**, the 2022-2023 and 2023-2024 team datasets have 30 rows and 24 columns. 
+The 2022-2023 player stats dataset has 609 rows and 29 columns. The 2023-2024 dataset has 
+657 rows and 29 columns. Each row within these datasets either represents a team and their stats
+for a given year, or a player and their stats during a given year
+
+Exactly which variables are relevant depends on each question, but overall the most 
+relevant variables are ORtg (offensive rating), DRtg (defensive rating), P+R+A (points plus
+rebounds plus assists), PpG (points per game), ApG (assists per game), OeFF (offensive effeciency)
+and WIN% (win percentage).
+
+There are some missing values in the dataset. For example, there are a few players who do not 
+have offensive and defensive ratings assigned. This is likely because they are simply not
+getting enough playing time in games to warrant a rating. This is fairly common, so we made
+sure to filter out players like this. Additionally, there is a column called RANK that seems
+to only have N/A values. This columns isn't important to our research, so was ignored. Otherwise
+there were no data quality issues.
+
+# 5 Method
+
+### Question 1 - Who was the biggest playoff riser?
+In order to clean my data, I merged the playoff and regular season datasets, with the merge key being the player name. 
+I then  created 3 new columns, ORtgIncrease, DRtgIncrease and PRAIncrease. These columns 
+represented the increase in offensive rating, defensive rating and P+R+A, from regular season to the
+playoffs.
+
+While processing the data, I ran into a few issues. First, some players did not have enough
+playing time to get a rating, so when I was calculating their increase in offensive and defensive
+rating I was getting +/- 100 (an average rating is typically around 100). In order to fix this,
+I filtered out these players, as it would be an inaccurate statement to include them as "biggest playoff
+risers" considering they just didn't have any data. Additionally, there were a few instances of
+players names showing up multiple times (likely because they were traded mid season). In order
+to fix this, I chose the first instance, as it would represent the more recent data.
+
+To address this question, I utilized ORtg, DRtg and PRA (most important variables). I calculated the increase,
+and then graphed each player in a scatter plot, oftentimes filtering out just the top 20. I created
+three scatter plots using this method, before finally creating a plot with the x axis being
+the increase in PRA and y axis being the decrease in defensive rating.
+
+I did not run into any challenges other than figuring out how to plot each person in a way
+that is visually appealing. Additionally, I did not use any advanced statistical approaches.
+
+### Question 2 - At what age does performance peak
+I cleaned my data by removing duplicate rows (which removes players who were traded mid season
+and played for multiple teams) and filtering for players who averaged more than 5 minutes per game
+
+I merged my datasets by player name using full join, with the merge key being each player.
+
+Age is the most important variable for this question because I am comparing it with other stats to
+determine what age range tends to be a players offensive prime.
+The other stats that I used to compare against age include APG (assists per game), PPG (points per game),
+ORtg (offensive rating), and eFG% (effective field goal percentage).
+
+In order to conduct my analysis I plotted each important stat against age, and had points that
+represented players.
+
+One challenge that I faced was that I didn’t merge the columns initially so I had two of each variable
+per player because there are two years worth of data. In order to solve this problem I simply created a
+new column for the relevant variables by taking the mean of the desired variable from each year. For
+example I created APG in my filtered dataset by taking the mean of APG.x and APG.y.
+
+I used loess (locally estimated statistical smoothing) in my graphs which is a type of regression that
+isn’t necessarily linear as it takes into account local regressions of data allowing a line that isn’t
+straight and follows trends in the data.
+
+### Question 3 - How does PER impact playoff wins
+I cleaned my data by removing missing values in my datasets. I made sure to not include them in my
+calculations and in doing so, I ensured that all teams had a valid average defensive rating and not just
+N/A.
+
+Because I was focusing on the top teams in the NBA, I decided to focus on the teams that made the
+playoffs and therefore filtered out all the players who belong to teams that didn’t make the playoffs. 
+
+Since in the team datasets, there isn’t a column that denotes players’ average defensive rating, I
+calculated this myself by first grouping the dataset by the attribute “TEAM” and then for each team
+computing the mean for the players’ defensive rating. 
+
+When merging datasets, I made certain that the keys for both datasets can be matched with each other,
+in that the team names must match each other when matching. I was surprised when in the team stats
+datasets, all of the team names were listed according to their full name instead of being abbreviated
+like how the player stats are. I created a separate column called “TEAMCode” and stored the
+abbreviations. This allowed me to merge both the player's and team's stats 
+(by.x = TEAM, by.y = TEAMCode)
+
+For technical decisions, since I wasn’t able to find the defensive ratings for the players who don’t
+have one in the dataset, I made sure to remove all missing values so that there aren’t any N/A 
+in my final calculations. 
+
+For this research question, I was interested in “TEAM”, “DRtg” (Defensive Rating), “oEFF” (Offensive
+Efficiency Rating), and “WIN%” (Win Percentage Regular Season)
+
+**Note:**
+
+ - DRtg is a metric used to measure how many points a team allows per 100 possessions. This means that a
+   lower DRtg indicates better defense. 
+   
+ - oEFF is a metric used to measure how effectively a team scores per 100 possessions. This metric is
+   adjusted for pace and a higher oEFF rating means a more efficient offensive system. 
+   
+To conduct my analysis,
+
+ - I researched what metrics are the best at identifying a team’s defensive success and
+ offensive success. 
+ 
+ - I made sure that the datasets came from a reputable and reliable source.
+ 
+ - I made sure to understand what each number in the dataset meant. 
+ 
+ - I made a separate column in the team datasets to include the teams’ name abbreviations so
+  that I could merge the player and team stats. 
+
+Initially, when I first merged the player and team stats based on “TEAM”, it resulted in no rows. I
+identified my error in that team names in the team stats dataset were written fully and not abbreviated.
+I made sure to change this by adding a separate column with all the abbreviations.
+
+
+# 6 Results
+### Question 1 - Who was the biggest playoff riser?
+#### Loading Data
+```{r}
+library(tidyverse)
+rs <- read_delim("NBA 2023-2024 Regular Season.csv", show_col_types = FALSE)
+pl <- read_delim("NBA 2023- 2024 Playoffs.csv", show_col_types = FALSE)
+
+md <- merge(rs, pl, by.x = "NAME", by.y = "NAME", all = FALSE, suffixes = c(".regular", ".playoffs"))
+md <- md %>%
+  filter(GP.playoffs >= 3 & `USG%.playoffs` >= 18.0) %>%
+  distinct(NAME, .keep_all = TRUE)
+
+md <- md %>% 
+  select(NAME, `P+R+A.regular`, ORtg.regular, DRtg.regular, `P+R+A.playoffs`, ORtg.playoffs, DRtg.playoffs) %>% 
+  mutate(PRAincrease = `P+R+A.playoffs` - `P+R+A.regular`, 
+         ORtgIncrease = ORtg.playoffs - ORtg.regular,
+         DRtgIncrease = DRtg.playoffs - DRtg.regular) %>% 
+  filter(ORtg.regular != 0 & DRtg.regular != 0 & DRtgIncrease > -90)
+```
+#### Plot 1: X-axis = Names, Y-axis = Increase in PRA
+```{r}
+md %>% 
+  arrange(-PRAincrease) %>% 
+  head(20) %>% 
+  ggplot(aes(x = reorder(NAME, PRAincrease), y = PRAincrease)) +
+  geom_point() + 
+  labs(x =" Player Name",
+       y = "Increase in Points, Rebounds and Assists",
+       title = "Players with the Highest Increase in P+R+A ")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) #This line is from stack overflow because the textbook doesn't have anything about adjusting angle
+  
+```
+
+This plot tells us that the player with the largest (and by a significant number) increase in 
+points + rebounds + assists (PRA) from the 2023-2024 regular season to playoffs was Khris Middleton. His
+PRA increased by ~12, a shockingly high value.
+
+
+#### Plot 2: X-axis = Names, Y-axis = Increase in Offensive Rating
+```{r}
+md %>% 
+  arrange(-ORtgIncrease) %>% 
+  head(20) %>% 
+  ggplot(aes(x = reorder(NAME, ORtgIncrease), y = ORtgIncrease)) +
+  geom_point() + 
+  labs(x =" Player Name",
+       y = "Increase in Offensive Rating",
+       title = "Players with the Highest Increase in Offensive Rating")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+```
+
+This plot tells us that the player with the largest increase in offensive rating from
+regular season to playoffs in 2023-2024 was Bones Hyland. In close second was Alec Burks.
+
+#### Plot 3: X-axis = Names, Y-axis = Increase in Defensive Rating
+```{r}
+md %>% 
+  arrange(DRtgIncrease) %>% 
+  head(20) %>%
+  ggplot(aes(x = reorder(NAME, DRtgIncrease), y = DRtgIncrease)) +
+  geom_point() + 
+  labs(x =" Player Name",
+       y = "Decrease in Defensive Rating",
+       title = "Players with Largest Decrease in Defensive Rating (Lower Rating = Better Defense")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+```
+
+This plot shows us that the player with the largest decrease in defensive rating was Josh Okogie.
+
+#### Plot 4: X-axis = Increase in PRA, Y-axis = Increase in Offensive Rating
+```{r}
+md %>% 
+  ggplot(aes(x = PRAincrease, y = DRtgIncrease)) +
+  geom_point() + 
+  geom_text(aes(label = ifelse(NAME %in% c("Khris Middleton", "Bones Hyland", "Josh Okogie","Anthony Davis",
+                                   "Luka Doncic", "Jayson Tatum"), NAME, "")), vjust = 1) + 
+  labs(x = "Increase in Points + Rebounds + Assists", 
+       y = "Decrease in Defensive Rating (Lower Rating = Better D)")
+  
+```
+
+This plot shows us the distribution of players, where the x axis is the increase in PRA and the y axis is the
+decrease in defensive rating. From this graph we can see Khris Middleton with the highest increase in PRA and 
+Josh Okogie with the largest decrease in defensive rating. Some superstars' names are also 
+shown for reference.
+
+### Question 2 - At Which Age Does Performance Peak in the NBA
+#### Loading Data and Manipulating Dataset
+```{r}
+RegStats <- read_delim("NBA 2023-2024 Regular Season.csv", show_col_types = FALSE)
+
+RegStats2223 <- read_delim("NBA 2022-2023.csv", show_col_types = FALSE)
+RegStats <- RegStats %>% distinct(NAME, .keep_all = TRUE)
+RegStats2223 <- RegStats2223 %>% distinct(NAME, .keep_all = TRUE)
+MergedRegSeason <-RegStats %>% 
+  full_join(RegStats2223, by = "NAME")
+FilteredRegStats <- MergedRegSeason %>% 
+  filter(MPG.x >= 5, MPG.y >= 5, na.rm = TRUE)
+
+FilteredRegStats <- FilteredRegStats %>% 
+  mutate(AGE = (AGE.x+AGE.y)/2)
+FilteredRegStats <- FilteredRegStats %>% 
+  mutate(APG = (APG.x+APG.y)/2)
+FilteredRegStats <- FilteredRegStats %>% 
+  mutate(PPG = (PPG.x+PPG.y)/2)
+FilteredRegStats <- FilteredRegStats %>% 
+  mutate(`eFG%` = (`eFG%.x`+`eFG%.y`)/2)
+FilteredRegStats <- FilteredRegStats %>% 
+  mutate(ORtg = (ORtg.x+ORtg.y)/2)
+```
+
+#### Plot 1: X-axis = Age, Y-axis = Points Per Game
+```{r}
+FilteredRegStats %>% 
+ggplot(aes(x = AGE, y = PPG, color = POS.x))+
+  geom_point()+
+  geom_smooth(method = "loess", se = FALSE, color = "blue")+
+  labs(title = "Player Effectiveness Based on Age", x = "Age", y = "Points Per Game")
+```
+
+This plot shows the distribution of PPG over age. We can see that the average PPG seems
+to peak around 32, and remains high from age 27-34.
+
+#### Plot 2: X-axis = Age, Y-axis = Assists Per Game
+```{r}
+FilteredRegStats %>% 
+ggplot(aes(x = AGE, y = APG , color = POS.x))+
+  geom_point()+
+  geom_smooth(method = "loess", se = FALSE, color = "blue")+
+  labs(title = "Offensive Effectiveness By Age", x = "Age", y = "Assists Per Game")
+```
+
+This plot shows the how assists per game change as age increases. From this plot we see
+that assists tend to consistently go up as players age.
+
+#### Plot 3: X-axis = Age, Y-axis = Effective Field Goal Percentage
+```{r}
+FilteredRegStats %>% 
+ggplot(aes(x = AGE, y = `eFG%`, color = POS.x))+
+  geom_point()+
+  geom_smooth(method = "loess", se = FALSE, color = "blue")+
+  labs(title = "Offensive Effectiveness by Age", x = "Age", y = "Effective Field Goal Percentage")
+```
+
+This plot shows the average offensive effeciency as age increases. From this plot we can see
+that offensive efficiency tends to peak from 24-32, and that there is a drop off on both sides of the peak.
+
+#### Plot 4: X-axis = Age, Y-axis = Offensive Rating
+```{r}
+FilteredRegStats %>% 
+ggplot(aes(x = AGE, y = ORtg, color = POS.x))+
+  geom_point()+
+  geom_smooth(method = "loess", se = FALSE, color = "blue")+
+  labs(title = "Offensive Effectiveness By Age", x = "Age", y = "Offensive Rating")
+```
+
+This plot shows the average offensive rating as age increases. From this plot we can see that 
+a player's offensive rating peaks from 27 to 32. Like the last plot, there are drop-offs on either side of 
+the peak.
+
+### Question 3 - How Does Offensive and Defensive Rating Impact Regular Season Wins?
+#### Loading and Filtering Data
+```{r}
+## Load player stats for both years
+playerRegular2023 <- read_delim("NBA 2023-2024 Regular Season.csv", show_col_types = FALSE)
+playerRegular2022 <- read_delim("NBA 2022-2023.csv", show_col_types = FALSE)
+
+## Load team stats for both year
+teamRegular2023 <- read_delim("NBA 2023-2024 Team Regular.csv", show_col_types = FALSE)
+teamRegular2022 <- read_delim("NBA 2022-2023 TEAM Regular.csv", show_col_types = FALSE)
+teamPlayoff2023 <- read_delim("NBA 2023-2024 TEAM Playoffs.csv", show_col_types = FALSE)
+teamPlayoff2022 <- read_delim("NBA 2022-2023 TEAM Playoffs.csv", show_col_types = FALSE)
+
+defensiveRegular2023 <- playerRegular2023 %>% 
+  filter(!is.na(DRtg)) %>% 
+  filter(TEAM %in% teamPlayoff2023$TEAM) %>% 
+  group_by(TEAM) %>% 
+  summarise(averageDRtgRegular = mean(DRtg))
+
+teamCode = c("Bos", "Cle", "Dal", "Den", "Ind", "Lac", "Lal", "Mia", "Mil", "Min",
+             "Nor", "Nyk", "Okc", "Orl", "Phi", "Pho")
+
+## Since the datasets are different in how team names are represented, make a new column to ensure that their both are the same when merging 
+teamRegular2023Mod <- teamRegular2023 %>% 
+  filter(TEAM == "Boston" | TEAM == "Cleveland" | TEAM == "Dallas" | TEAM == "Denver" | TEAM == "Indiana" | TEAM == "LA Clippers" | 
+           TEAM == "LA Lakers" | TEAM == "Miami" | TEAM == "Milwaukee" | TEAM == "Minnesota" | TEAM == "New Orleans" | 
+           TEAM == "New York" | TEAM == "Oklahoma City" | TEAM == "Orlando" | TEAM == "Philadelphia" | TEAM == "Phoenix") %>% 
+  arrange(TEAM) %>% 
+  mutate(TEAMCode = teamCode)
+
+## Merge the two datasets together 
+winVsdefRegular2023 <- merge(defensiveRegular2023, teamRegular2023Mod, by.x = "TEAM", by.y = "TEAMCode")
+```
+
+#### Plot 1: X-axis = Average Defensive Rating, Y-axis = Team Win Percentage - Regular Season 2023
+Does a lower average defensive rating correlate to a higher win percentage for the regular season in 2023? (Lower defensive rating correlate to better defense)
+```{r}
+winVsdefRegular2023 %>% 
+  ggplot(aes(x = averageDRtgRegular, y = `WIN%`)) +
+    geom_point() + 
+    labs(x = "Average defensive rating", 
+         y = "Team win percentage", 
+         title = "Does a lower average defensive rating correlate to a higher win percentage?")
+  
+```
+
+This plot shows the team win percentage as defensive rating increases. From the plot 
+you can see that there isn't a strong trend in one direction, if anything the win percentage
+doesn't change as defensive rating increases.
+
+#### Plot 2: X-axis = Offensive Efficiency Rating, Y-axis = Team Win Percentage - Regular Season 2023
+Counter Argument: Does a higher offensive efficiency rating correlate to a higher win percentage for teams in the regular season?
+```{r}
+winVsdefRegular2023 %>% 
+  ggplot(aes(x = oEFF, y = `WIN%`)) + geom_point() + geom_smooth(method = "lm", se = FALSE, color = "blue") + 
+  labs(x = "Offensive efficiency rating", y = "Team win percentage", title = "Does a higher offensive efficiency rating correlate a to higher win percentage?")
+```
+
+This plot shows the team win percentage as offensive efficiency rating increases. This plot shows us 
+that while there is a general trend upwards as offensive efficiency rating increases, there is no
+exact strong correlation. For example, the team with the highest efficiency rating has one of 
+the lowest team win percentages overall.
+
+#### Plot 3: X-axis = Average Defensive Rating, Y-axis = Team Win Percentage, Point Color = Offensive Efficiency- Regular Season 2023
+Counter Argument: Does a combination of both offense and defense lead to a better win percentage? 
+```{r}
+winVsdefRegular2023 %>% 
+  ggplot(aes(x = averageDRtgRegular, y = `WIN%`, col = oEFF)) + geom_point() + scale_color_distiller(palette = "Blues", direction = 1) + 
+  labs(x = "Average defensive rating", y = "Team win percentage", col = "Offensive efficiency rating", title = "Does a combination offense and defense correspond higher win percentage?")
+```
+
+This plot shows the team win percentage on the y axis and average defensive rating on the x axis. The
+color of the dot represents the offensive efficiency rating for each team. Graph shows us that there
+isn't necessarily a strong trend (recall that lower defensive rating = better defense) in 2023-2024.
+
+Calculate average defensive rating for each team in 2022
+```{r}
+defensiveRegular2022 <- playerRegular2022 %>% 
+  filter(!is.na(DRtg)) %>% 
+  filter(TEAM %in% teamPlayoff2022$TEAM) %>% 
+  group_by(TEAM) %>% 
+  summarise(averageDRtgRegular = mean(DRtg))
+```
+
+Merge datasets together
+```{r}
+## Merge the two datasets together 
+winVsdefRegular2022 <- merge(defensiveRegular2022, teamRegular2022, by = "TEAM")
+```
+
+#### Plot 4: X-axis = Average Defensive Rating, Y-axis = Team Win Percentage - Regular Season 2022
+Does a lower average defensive rating correlate to a higher win percentage for the regular season in 2022? (Lower defensive rating correlate to better defense)
+```{r}
+winVsdefRegular2022 %>% 
+  ggplot(aes(x = averageDRtgRegular, y = `WIN%`)) + geom_point() + labs(x = "Average defensive rating", y = "Team win percentage", 
+                                                                        title = "Does a lower average defensive rating correlate to a higher win percentage?")
+  
+```
+
+This plot shows the team win percentage as average defensive rating increases in the 2022-23 season.
+As defensive rating increases, it looks like there is no real correlation between rating and team win percentage.
+
+#### Plot 5: X-axis = Offensive Efficiency Rating, Y-axis = Team Win Percentage - Regular Season 2022
+Counter Argument: Does a higher offensive efficiency rating correlate to a higher win percentage for teams in the regular season?
+```{r}
+winVsdefRegular2022 %>% 
+  ggplot(aes(x = oEFF, y = `WIN%`)) + geom_point() + geom_smooth(method = "lm", se = FALSE, color = "blue") + 
+  labs(x = "Offensive efficiency rating", y = "Team win percentage", title = "Does a higher offensive efficiency rating correlate a to higher win percentage?")
+```
+
+This plot shows the team win percentage as offensive efficiency rating increases in 2022-2023. This plot shows us 
+that while there is a general trend upwards as offensive efficiency rating increases, there is no
+exact strong correlation (just like in 2023-2024). For example, the team with the highest win percentage has a below
+average offensive efficiency rating.
+
+#### Plot 6: X-axis = Average Defensive Rating, Y-axis = Team Win Percentage, Point Color = Offensive Efficiency- Regular Season 2022
+Counter Argument: Does a combination of both offense and defense lead to a better win percentage? 
+```{r}
+winVsdefRegular2022 %>% 
+  ggplot(aes(x = averageDRtgRegular, y = `WIN%`, col = oEFF)) + geom_point() + scale_color_distiller(palette = "Blues", direction = 1) + 
+  labs(x = "Average defensive rating", y = "Team win percentage", col = "Offensive efficiency rating", title = "Does a combination offense and defense correspond higher win percentage?")
+```
+
+This graph shows the average defensive rating vs the team win percentage, where point colors represent
+offensive efficiency ratings. This graph shows that htere is a wide range of possible outcomes
+and there is no distinctive trend one way or the other.
+
+# 7 Discussion
+### Question 1 - Who was the biggest playoff riser in 2023-2024
+From my results, I concluded that Khris Middleton was the biggest playoff riser in the 2023-2024
+NBA season. Khris Middleton clearly had the most significant increase in P+R+A. Additionally, his
+defensive rating decreased (a marginal amount, but still decreased). In comparison, I could have
+chosen Josh Okogie or Bones Hyland. Josh Okogie's defensive rating decreased significantly, but
+unfortunately so did his offensive rating. Bones Hyland's had the highest increase in offensive
+rating, but his increase in P+R+A did not reflect that. He was more efficient, but didn't do much
+more than usual. Additionally, his defensive rating increased, implying he struggle defensively. 
+To summarize, Khris Middleton was the biggest playoff riser because of his significant increase in 
+PRA and decrease in defensive rating. Okogie and Hyland were close, but they only improved in one
+aspect of their game, unlike Middleton who improved on both.
+
+My conclusion is limited because I based "biggest playoff riser" on increase in PRA, offensive rating
+and defensive rating. Realistically, these stats should not truly determine the biggest riser,
+as there are many other aspects to consider (team impact, clutch time ability and more). I can
+extend the results of my study fairly far, but it will fail if scrutinized heavily, since it doesn't
+account for many other stats.
+
+For future research, I would recommend calculating and using more stats for analysis. For example,
+player efficiency or player true shooting percentage could be good for improving results. Overall, 
+this study could just use more statistics to analyze by.
+
+### Question 2 - At which age does performance peak in the NBA?
+My findings reveal that NBA players are typically at their offensive peak between the ages of 27-34.
+Although each stats have different peaks and trends, the ages of 27-34 tend to have the highest
+value across the stats I analyzed. 
+
+There are a few obvious limitations of my data such as the sample size of only two years and my 
+exclusion of players who switched teams during the regular season. Due to these factors, I can
+only extend my conclusion to the past couple of NBA seasons for players who were loyal to their
+team in each respective season.
+
+A direction for my future research would be to find other advanced stats to compare against age,
+and also account for the minutes disparity in conuting stats such as PPG and APG.
+
+A different direction would be to compare age against defensive effectiveness since it may be 
+different than offensive effectiveness because defense tends to rely more on athleticism that 
+will inevitably diminish as a player ages.
+
+### Question 3 - How does offensive efficiency or defensive rating impact team wins in the regular season?
+According to my graphs, there isn’t a significant relationship between the 3 variables: DRtg, oEFF, and WIN%.
+For both 2022 and 2023, having a better defensive rating or a more efficient offense system doesn’t result in
+more team wins in the regular season. Data values are spread across the graphs for both variables (DRtg and oEFF)
+when isolated. When combining both together (a good defense and a good offense), there also seems to be no
+relationship with team success, indicating that there must be external factors that affect team win percentage
+(Team Chemistry, Coaching Strategy, Team Culture, Trades, Ownership, etc). 
+
+Since I was only able to find 2 years' worth of players and team stats, my results are not statistically 
+significant. By having more data to analyze, we can infer more about whether or not defense is a good indicator
+of team success. 
+
+For future research, I wish to incorporate more data from past years and use methods like linear regression and 
+calculating the p-value to understand whether or not my results can be generalized, and where I can make an accurate
+conclusion based on it. Besides this, if I were able to conduct my own research and data collection, I’d make sure to
+pay close attention to things like defensive rebounding, and forced turnovers/defensive pressure because 
+defensive rating doesn’t capture all of a team’s defense. I think combining multiple attributes in analyzing
+a team’s defense can be valuable in seeing whether or not defense leads to more wins in the regular season. 
+
+# 8 Summary
+In conclusion, after studying recent NBA seasons in-depth, we have come to the following conclusions. The
+biggest playoff riser in 2023-2024 was Khris Middleton, the peak performance age is 27-34 and finally, there
+is no strong correlation between offensive efficiency or defensive rating on team wins. These conclusions will 
+hopefully create a new perspective into the NBA for fans across the world, while providing interesting
+takeaways, shaping the way we understand the NBA as a whole.
+
+
+
+
+
+
+
+
+
