@@ -1,6 +1,6 @@
 ---
-title: "Info 201 FP Group 2"
-author: "Zachary Wu, Landon Chun, Johnny Nguyen"
+title: "Multifaceted-Analysis-of-NBA-Data-using-R"
+author: "Zachary Wu"
 date: "2025-03-09"
 output: html_document
 ---
@@ -37,18 +37,15 @@ In order to learn more about the NBA, we proposed three questions.
 1) Which player was the biggest playoff riser in 2023-2024? 
  - We measure "playoff riser" as who had the largest increase in three distinct categories,
    P+R+A (points plus rebounds plus assists), defensive rating and offensive rating.
-   (Zach Wu)
  
 2) At which age does performance peak in the NBA. 
  - In order to determine the age at which
    performance peaks, we looked at offensive rating, points per game and effective field goal percentage.
-   (Landon Chun)
 
 3) Is defense overrated? Does a lower defensive rating or higher offensive efficiency rating correlate to 
 a higher win percentage for top teams in the NBA in the regular season? 
 - Lower defensive rating implies less points allowed in 100 possessions.
 - Higher offensive efficiency means more points scored per possession.
-(Johnny Nguyen)
 
 Our intended audience is other NBA fans, likely people who are drawn to the mathematics
 and statistics side of the NBA. This work is important because these fans looking at our data can 
@@ -563,6 +560,7 @@ biggest playoff riser in 2023-2024 was Khris Middleton, the peak performance age
 is no strong correlation between offensive efficiency or defensive rating on team wins. These conclusions will 
 hopefully create a new perspective into the NBA for fans across the world, while providing interesting
 takeaways, shaping the way we understand the NBA as a whole.
+
 
 
 
